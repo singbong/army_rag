@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # LLM 서빙을 위한 vLLM 서비스 (8B 모델)
+  vllm_8b:
+    container_name: llama3_8b
+    image: vllm/vllm-openai:v0.9.1
+    restart: always
+    ipc: host
+    volumes:
+      # vllm 전용 볼륨을 마운트
+      - competition_vllm:/root/.cache/huggingface
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0  # GPU 0번만 사용
+      - NCCL_P2P_DISABLE=1
+      - NCCL_IB_DISABLE=1
+      - NCCL_DEBUG=INFO
+      - VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  # 토큰 길이 제한 우회
+      - TZ=Asia/Seoul
+    ports:
+      - "9999:8000"
+    command:
+      # vLLM 0.9.x 는 config.json 이 있는 폴더 자체를 지정해야 함 (hub/ 제거)
+      - --model=/root/.cache/huggingface/llama-3-Korean-Bllossom-8B
+      - --gpu-memory-utilization=0.9
+      # 1개 GPU에 텐서 병렬 처리
+      - --tensor-parallel-size=1
+      # 최대 토큰 길이 확장 (기본 8192 → 32768)
+      - --max-model-len=32768
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']  # GPU 0번만 사용
+              capabilities: [gpu]
+  vllm_32b:
+    container_name: Qwen2.5-32B-Instruct
+    image: vllm/vllm-openai:v0.9.1
+    restart: always
+    ipc: host
+    volumes:
+      - competition_vllm:/root/.cache/huggingface
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=2,3  # GPU 2,3번만 사용
+      - NCCL_P2P_DISABLE=1
+      - NCCL_IB_DISABLE=1
+      - NCCL_DEBUG=INFO
+      - VLLM_ALLOW_LONG_MAX_MODEL_LEN=1  # 토큰 길이 제한 우회
+      - TZ=Asia/Seoul
+    ports:
+      - "9998:8000"  # 다른 포트 사용
+    command:
+      - --model=/root/.cache/huggingface/Qwen2.5-32B-Instruct
+      - --gpu-memory-utilization=0.9
+      - --tensor-parallel-size=2
+      # 최대 토큰 길이 확장 (기본 8192 → 32768)
+      - --max-model-len=32768
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['2', '3']  # GPU 2,3번만 사용
+              capabilities: [gpu]
+
+  # 임베딩을 위한 Ollama 서비스
+  ollama:
+    container_name: embedding
+    image: ollama/ollama:latest
+    restart: always
+    volumes:
+      # ollama 전용 볼륨을 마운트
+      - competition_ollama:/root/.ollama
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "9513:11434"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - TZ=Asia/Seoul
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # FastAPI 기반 RAG 채팅 서비스 (프론트엔드 + 백엔드)
+  rag-chat:
+    build: .
+    container_name: rag-chat
+    restart: always
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./rag_page:/app/rag_page
+      - ./data:/app/workspace/data  # PDF 파일들을 컨테이너로 마운트
+      - rag-chat:/app/shared_data  # HyperCLOVA OCR 결과 및 FAISS 벡터 데이터
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - VLLM_URL=http://vllm_8b:8000/v1          # 8B 모델 (기본)
+      - VLLM_32B_URL=http://vllm_32b:8000/v1     # 32B 모델 
+      - OLLAMA_URL=http://ollama:11434
+      - LANGSMITH_TRACING=true
+      - LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
+      - LANGSMITH_API_KEY="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"
+      - LANGSMITH_PROJECT="rag"
+      - TZ=Asia/Seoul
+    depends_on:
+      - vllm_8b
+      - vllm_32b
+    command: uvicorn rag_page.app:app --host 0.0.0.0 --port 5555 --reload --log-level debug
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all # 사용 가능한 모든 GPU를 할당하거나, 특정 GPU를 지정할 수 있습니다.
+              capabilities: [gpu]
+
+# docker-compose가 사용할 볼륨들을 정의
+volumes:
+  competition_vllm:
+    name: competition_vllm
+  competition_ollama:
+    name: competition_ollama
+  rag-chat:
+    name: rag-chat

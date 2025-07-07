@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💬 병무청 모집병 상담</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/chat.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-shield-alt"></i> 병무청 상담</h3>
+                <button class="btn btn-primary btn-sm" onclick="createNewSession()">
+                    <i class="fas fa-plus"></i> 새 상담
+                </button>
+            </div>
+
+            <div class="session-list" id="sessionList">
+                <!-- 세션 목록이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary btn-sm" onclick="goHome()">
+                    <i class="fas fa-home"></i> 홈으로
+                </button>
+            </div>
+        </aside>
+
+        <!-- 메인 채팅 영역 -->
+        <main class="chat-main">
+            <!-- 채팅 헤더 -->
+            <header class="chat-header">
+                <div class="chat-info">
+                    <h2 id="currentSessionName">새 상담</h2>
+                    <span class="session-id" id="currentSessionId"></span>
+                    <div class="rag-status" id="ragStatus" style="display: none;">
+                        <i class="fas fa-database"></i> 모집병 정보 기반 답변
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="deleteSession(currentSessionId, event)">
+                        <i class="fas fa-trash"></i> 상담 삭제
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportChat()">
+                        <i class="fas fa-download"></i> 내보내기
+                    </button>
+                </div>
+            </header>
+
+            <!-- 채팅 메시지 영역 -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- 메시지들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <!-- 메시지 입력 영역 -->
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="모집병에 대해 궁금한 점을 물어보세요... (Shift+Enter로 줄바꿈, Enter로 전송)"
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                    ></textarea>
+                    <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-info">
+                    <span class="typing-indicator" id="typingIndicator" style="display: none;">
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle"></i>
+                        AI가 답변을 생성하고 있습니다...
+                    </span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>로딩 중...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/chat.js') }}"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html> 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ 병무청 AI 상담 서비스</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-shield-alt"></i> 병무청 AI 상담 서비스</h1>
+            <p>모집병 관련 궁금한 점을 언제든지 문의하세요</p>
+        </header>
+
+        <main class="main-content">
+            <div class="welcome-section">
+                <div class="welcome-card">
+                    <h2>안녕하세요! 🇰🇷</h2>
+                    <p>병무청 AI 상담원이 모집병 관련 모든 질문에 친절하게 답변해드립니다.</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-user-shield"></i>
+                            <h3>병역 상담</h3>
+                            <p>입영, 전역, 병역 혜택 등<br>전반적인 병역 문의</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-calendar-check"></i>
+                            <h3>일정 안내</h3>
+                            <p>입영일정, 훈련일정<br>주요 병무 스케줄</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>서류 안내</h3>
+                            <p>필요 서류, 신청 방법<br>각종 증명서 발급</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-heart"></i>
+                            <h3>복지 혜택</h3>
+                            <p>장병 복지, 급여 정보<br>각종 지원 제도</p>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="startNewChat()">
+                            <i class="fas fa-comments"></i> 상담 시작하기
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewSessions()">
+                            <i class="fas fa-history"></i> 이전 상담 보기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 병무청 AI 상담 서비스. 대한민국 국방부 병무청</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+</body>
+</html> 
