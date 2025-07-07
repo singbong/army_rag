@@ -106,7 +106,7 @@ services:
       - OLLAMA_URL=http://ollama:11434
       - LANGSMITH_TRACING=true
       - LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
-      - LANGSMITH_API_KEY="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"
+      - LANGSMITH_API_KEY=""                       ######################## 랭스미스 api key
       - LANGSMITH_PROJECT="rag"
       - TZ=Asia/Seoul
     depends_on:
