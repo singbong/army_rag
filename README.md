@@ -68,7 +68,7 @@
    - `Qwen2.5-32B-Instruct`
 
 3. **Docker Compose를 사용하여 서비스 실행**
-   아래 명령어를 실행하여 모��� 서비스(vLLM, RAG Chat)를 빌드하고 실행합니다.
+   아래 명령어를 실행하여 모든 서비스(vLLM, RAG Chat)를 빌드하고 실행합니다.
    ```bash
    docker-compose up --build -d
    ```
