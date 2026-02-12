@@ -11,7 +11,7 @@
 
 특히, 본 시스템은 단순한 RAG 파이프라인을 넘어 **LangGraph** 기반의 상태 중심 워크플로우(State-based Workflow)를 채택하여 질문 재작성(Query Re-writing), 하위 질문 분해(Question Decomposition), 하이브리드 검색(Hybrid Retrieval), 의미적 리랭킹(Semantic Re-ranking)으로 이어지는 다단계 처리 파이프라인을 구현하였다. 사용자는 육군, 공군 등 각 군의 모집 분야, 지원 자격, 제출 서류, 최신 커트라인 등 병역 이행에 필요한 정보를 자연어 질의를 통해 획득할 수 있다. 시스템은 `data` 폴더에 저장된 공식 PDF 문서들에 기반하여 정확하고 신뢰성 있는 답변을 생성하며, 각 답변에 대해 출처 정보를 정밀하게 인용(Provenance Tracking)함으로써 투명성을 확보한다.
 
-<img width="645" alt="image" src="https://github.com/user-attachments/assets/e494d6ea-451f-479c-91e4-544073e563e9" />
+![NeurIPS Style LangGraph Workflow](rag_workflow_neurips.png)
 
 
 ## 2. 시스템 아키텍처

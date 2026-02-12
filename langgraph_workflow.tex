@@ -1,0 +1,173 @@
+\documentclass[a4paper,landscape]{article}
+\usepackage[margin=0.5cm]{geometry}
+\usepackage{kotex}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds, shadows.blur}
+
+% ── Academic Paper Style Palette (NeurIPS/ICML) ──
+% Main Colors: Black, Dark Gray, White
+\definecolor{cMain}{HTML}{222222}      % 주요 텍스트/테두리
+\definecolor{cGray}{HTML}{F5F5F5}      % 옅은 배경
+\definecolor{cAccent}{HTML}{2E5EAA}    % 포인트 컬러 (Academic Blue)
+
+% ── 기존 색상 변수 매핑 재정의 (Monochrome/Minimal Theme) ──
+% 파란색 계열 -> 회색/블루그레이 톤
+\definecolor{cBlue}{HTML}{333333} % 테두리는 진하게
+\definecolor{cB1}{HTML}{FFFFFF}
+\definecolor{cB2}{HTML}{FFFFFF}
+\definecolor{cB3}{HTML}{FFFFFF}
+\definecolor{cB4}{HTML}{E5E7EB}
+\definecolor{cB5}{HTML}{333333} % 진한 강조
+
+% 초록색 계열 -> 회색 톤으로 통일 (유지하되 채도 뺌)
+\definecolor{cGreen}{HTML}{333333}
+\definecolor{cG1}{HTML}{FFFFFF}
+\definecolor{cG2}{HTML}{FFFFFF}
+\definecolor{cG3}{HTML}{FFFFFF}
+\definecolor{cG4}{HTML}{E5E7EB}
+
+% 붉은색 계열 -> 회색 톤으로 통일
+\definecolor{cRose}{HTML}{333333}
+\definecolor{cR1}{HTML}{FFFFFF}
+\definecolor{cR2}{HTML}{FFFFFF}
+\definecolor{cR3}{HTML}{E5E7EB}
+\definecolor{cR4}{HTML}{333333}
+
+\definecolor{cSlate}{HTML}{404040} % 화살표 텍스트
+
+% ── 노드 스타일 (Academic Flat Design) ──
+\tikzset{
+    box/.style={
+        rectangle, rounded corners=1pt,
+        minimum width=3.0cm, minimum height=1.0cm,
+        text width=2.8cm, align=center,
+        font=\small\sffamily, inner sep=4pt,
+        draw=black!80, line width=0.6pt
+    },
+    sbox/.style={
+        rectangle, rounded corners=1pt,
+        minimum width=2.6cm, minimum height=0.8cm,
+        text width=2.4cm, align=center,
+        font=\scriptsize\sffamily, inner sep=3pt,
+        draw=none, % 설명 박스는 테두리 없이 깔끔하게
+        fill=white
+    },
+    accent/.style={
+        rectangle, rounded corners=2pt,
+        minimum width=3.2cm, minimum height=1.1cm,
+        text width=3.0cm, align=center,
+        font=\small\sffamily\bfseries, inner sep=4pt,
+        draw=black, line width=0.8pt,
+        fill=white, text=black
+    },
+    arr/.style={-Stealth, line width=0.7pt, color=black!85},
+    darr/.style={-Stealth, dashed, line width=0.7pt, color=black!85},
+    node_lg/.style={
+        rectangle, rounded corners=2pt,
+        minimum width=3.2cm, minimum height=1.2cm,
+        text width=3.0cm, align=center,
+        font=\small\sffamily\bfseries, inner sep=5pt,
+        draw=black, line width=0.7pt,
+        fill=white
+    }
+}
+
+\begin{document}
+\pagestyle{empty}
+\vspace*{\fill}
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[x=7.5cm, y=1.3cm]
+
+    % ============================================================
+    %  Column 1 : 질의 처리 (Query Processing)
+    % ============================================================
+
+    % 사용자 질문
+    \node[accent, fill=black!80, draw=black, text=white] (user) at (0, 0) {사용자 질의 입력\\(User Query)};
+
+    % ReWriter Node
+    \node[node_lg, fill=white, draw=black] (rewrite) at (0, -1.8) {ReWriter 노드\\(LLM 32B)};
+    \node[sbox, fill=white, below=0.05cm of rewrite] (rewrite_desc) {모호한 질의 재작성\\(대화 맥락 반영)};
+
+    % Decomposer Node
+    \node[node_lg, fill=white, draw=black] (decomp) at (0, -3.8) {Question Decomposer\\(LLM 8B)};
+    \node[sbox, fill=white, below=0.05cm of decomp] (decomp_desc) {하위 질문 분해\\(Sub-questions)};
+
+    % 화살표
+    \draw[arr] (user) -- (rewrite);
+    \draw[arr] (rewrite_desc) -- (decomp);
+
+    % 경계 박스 (Query Processing)
+    \begin{pgfonlayer}{background}
+        \node[rectangle, rounded corners=4pt, draw=black!40, dashed, line width=0.8pt,
+              fill=none, inner sep=0.4cm,
+              fit=(user)(rewrite)(decomp)(decomp_desc)] (P1) {};
+    \end{pgfonlayer}
+    \node[font=\normalsize\bfseries, text=black, above=0.1cm of P1.north] {1. 질의 분석 및 확장};
+
+
+    % ============================================================
+    %  Column 2 : 재귀적 검색 (Recursive Search) - Loop
+    % ============================================================
+
+    % Multi-Query
+    \node[node_lg, fill=white, draw=black] (multi) at (1.0, -0.8) {Multi-Query 생성\\(LLM 32B)};
+    \node[sbox, fill=white, below=0.05cm of multi] (multi_desc) {하위 질문 $\rightarrow$ 2개 쿼리};
+
+    % Hybrid Retrieval
+    \node[node_lg, fill=white, draw=black] (hybrid) at (1.0, -2.5) {Hybrid Search\\(FAISS + BM25)};
+
+    % Reranking
+    \node[node_lg, fill=white, draw=black] (rerank) at (1.0, -4.0) {Semantic Re-ranking\\(LLM 8B)};
+    \node[sbox, fill=white, below=0.05cm of rerank] (rerank_desc) {관련성 평가 (1--10점)\\8점 이상 선별};
+
+    % 화살표: 하위 질문 전달
+    \draw[arr] (decomp_desc.east) -- node[below, font=\scriptsize, text=black, pos=0.55, fill=white, inner sep=2pt] {하위 질문 전달} (multi.west);
+    \draw[arr] (multi_desc) -- (hybrid);
+    \draw[arr] (hybrid) -- (rerank);
+
+    % Loop 표시 (Recursive) - 왼쪽 외곽 우회 (좌표간격 충분)
+    \draw[darr] (rerank.west) -- ++(-0.15,0) |- node[pos=0.75, left, font=\scriptsize\bfseries, text=black, align=center, fill=white, inner sep=2pt] {모든 하위 질문에\\대해 반복} (multi.west);
+
+    % 경계 박스 (Recursive Search)
+    \begin{pgfonlayer}{background}
+        \node[rectangle, rounded corners=4pt, draw=black!40, dashed, line width=0.8pt,
+              fill=none, inner sep=0.4cm,
+              fit=(multi)(hybrid)(rerank)(rerank_desc)] (P2) {};
+    \end{pgfonlayer}
+    \node[font=\normalsize\bfseries, text=black, above=0.1cm of P2.north] {2. 재귀적 정보 검색 (Recursive)};
+
+
+    % ============================================================
+    %  Column 3 : 생성 및 답변 (Generation & Output)
+    % ============================================================
+
+    % Document Aggregation
+    \node[sbox, fill=white, draw=black!30] (agg) at (2.0, -2.5) {관련 문서 집계\\(Context Aggregation)};
+
+    % Generate Answer
+    \node[node_lg, fill=white, draw=black] (gen) at (2.0, -4.2) {Generate Answer\\(LLM 32B)};
+    \node[sbox, fill=white, below=0.05cm of gen] (gen_desc) {답변 생성 + 출처 인용\\(Provenance Tracking)};
+
+    % Final Output
+    \node[accent, fill=black!80, draw=black, text=white] (out) at (2.0, -6.1) {최종 답변 출력\\(Web Interface)};
+
+    % 화살표
+    \draw[arr] (rerank.east) -- node[above, font=\scriptsize, text=black, fill=white, inner sep=2pt] {선별된 문서} (agg.west);
+    \draw[arr] (agg) -- (gen);
+    \draw[arr] (gen_desc) -- (out);
+
+    % 경계 박스 (Generation)
+    \begin{pgfonlayer}{background}
+        \node[rectangle, rounded corners=4pt, draw=black!40, dashed, line width=0.8pt,
+              fill=none, inner sep=0.4cm,
+              fit=(agg)(gen)(gen_desc)(out)] (P3) {};
+    \end{pgfonlayer}
+    \node[font=\normalsize\bfseries, text=black, above=0.1cm of P3.north] {3. 답변 생성 및 제공};
+
+\end{tikzpicture}%
+}% end resizebox
+\vspace*{\fill}
+
+\end{document}
